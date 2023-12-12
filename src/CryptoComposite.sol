@@ -2,13 +2,29 @@
 pragma solidity ^0.8.13;
 
 contract CryptoComposite {
-    function getColor(uint256 colorIndex) public pure returns (string memory) {
-        // todo: schemes
-        if (colorIndex == 1) return "000000";
+    function getColor(
+        uint256 seed,
+        uint256 colorIndex
+    ) public pure returns (string memory) {
+        string[5] memory indices0 = [
+            "e6ebe6",
+            "8d5524",
+            "e0ac69",
+            "f1c27d",
+            "ffdbac"
+        ]; // background/skin
+        if (colorIndex == 7) return indices0[1];
+        // if(colorIndex == 0) return indices0[seed % 9876 % indices0.length];
+
+        string[2] memory indices1 = ["000000", "36445f"]; // facial lines
+        if (colorIndex == 1) return indices1[1];
+        // if (colorIndex == 1) return indices1[seed % 8765 % indices1.length];
+
         if (colorIndex == 2) return "2bafff";
         if (colorIndex == 3) return "12dcfe";
         if (colorIndex == 4) return "1c74ee";
         if (colorIndex == 5) return "134fa3";
+        if (colorIndex == 6) return "#c68642"; // skin/back #2
 
         return "ffffff";
     }
@@ -24,7 +40,7 @@ contract CryptoComposite {
                 abi.encodePacked(
                     html,
                     '<span style="background-color:#',
-                    getColor(grid[i]),
+                    getColor(seed, grid[i]),
                     ';"></span>'
                 )
             );
@@ -42,6 +58,23 @@ contract CryptoComposite {
         grid = getEars(0, grid);
         grid = getMouth(0, grid);
 
+        grid = getSkin(grid);
+
+        return grid;
+    }
+
+    function getSkin(
+        uint16[576] memory grid
+    ) public pure returns (uint16[576] memory) {
+        for (uint i = 0; i < grid.length; i++) {
+            if (i / 24 > 8 && i / 24 < 21) {
+                if (i % 24 > 5 && i % 24 < 18) {
+                    if (grid[i] == 0) {
+                        grid[i] = 7;
+                    }
+                }
+            }
+        }
         return grid;
     }
 
@@ -196,7 +229,8 @@ contract CryptoComposite {
             // 227,
             // 233
         ];
-        if (index == 0) { // todo: replace with seed?
+        if (index == 0) {
+            // todo: replace with seed?
             for (uint i = 0; i < faceOutline1.length; i++) {
                 grid[faceOutline1[i]] = 1;
             }
@@ -272,8 +306,8 @@ contract CryptoComposite {
         uint256 index,
         uint16[576] memory grid
     ) public pure returns (uint16[576] memory) {
-        uint16[7] memory mouth1 = [400, 423, 446,467,468,469,470];
-        for(uint i = 0; i < mouth1.length; i++){
+        uint16[7] memory mouth1 = [400, 423, 446, 467, 468, 469, 470];
+        for (uint i = 0; i < mouth1.length; i++) {
             grid[mouth1[i]] = 1;
         }
         return grid;
