@@ -12,8 +12,8 @@ contract CryptoCompositeScript is Script {
     function run() public {
         vm.startBroadcast();
         CryptoComposite cc = new CryptoComposite();
-        string memory svg = cc.generateHTML(181818181818811);
-        // string memory svg = cc.getSvg(tokenId);
+        uint256 seed = uint(keccak256(abi.encodePacked(block.timestamp, block.prevrandao)));
+        string memory svg = cc.generateHTML(seed);
         console2.logString(svg);
     }
 }
