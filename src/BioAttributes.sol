@@ -39,7 +39,6 @@ contract BioAttributes {
     }
 
     function getSectorNum(uint256 ownerSeed) internal pure returns (uint256) {
-        return 4;
         uint256 num = (ownerSeed % 36763) % 100;
         if (num <= 20) {
             return 0;
@@ -194,20 +193,21 @@ contract BioAttributes {
             );
         } else if (sectorNum == 1) {
             // nfts
-            string[9] memory firstWords = [
+            string[10] memory firstWords = [
                 "Grail",
                 "Monkey",
                 "Super",
-                "Cosmic",
+                "Galactic",
                 "Cyber",
                 "Ethereal",
                 "Phantom",
                 "Floor",
-                "Digital"
+                "Digital",
+                "Creator"
             ];
             string[10] memory secondWords = [
                 "Museum",
-                "House",
+                "Art House",
                 "Land",
                 "Cats",
                 "Studio",
@@ -217,7 +217,6 @@ contract BioAttributes {
                 "Pump",
                 "Trading"
             ];
-
             string[13] memory thirdWords = [
                 "Visions",
                 "Fund",
@@ -257,7 +256,7 @@ contract BioAttributes {
                 "Unique",
                 "Teamwork",
                 "Stakeholder",
-                ""
+                "Alpha"
             ];
             string[11] memory secondWords = [
                 "Value Add",
@@ -308,13 +307,14 @@ contract BioAttributes {
                 "Tokenized",
                 "Digital"
             ];
-            string[10] memory secondWords = [
+            string[11] memory secondWords = [
                 "Blockchain",
                 "Asset",
                 "Vanguard",
                 "Liquidity",
                 "Syndicate",
                 "Whale",
+                "Alpha",
                 "Communications",
                 "Streaming",
                 "Studio",
@@ -344,9 +344,43 @@ contract BioAttributes {
             );
         } else {
             // L1/L2
-            string[10] memory firstWords = ["Wavy", "ZK", "Optimistic", "Smart", "Catalyst", "Bear", "Bull", "Solar", "Sigma", "Trustless"];
-            string[11] memory secondWords = ["Token", "Rollup", "Nexus", "Blockchain", "Protocol", "Node", "Oasis", "Sphere", "Quantum", "Nucleus", "Link"];
-            string[6] memory thirdWords = ["Chain", "Network", "EVM", "Ledger", "Core", "Vertex"];
+            string[13] memory firstWords = [
+                "Wavy",
+                "ZK",
+                "Optimistic",
+                "Smart",
+                "Catalyst",
+                "Bear",
+                "Bull",
+                "Solar",
+                "Sigma",
+                "Trustless",
+                "InterBlockchain",
+                "Alpha",
+                "Low Fee"
+            ];
+            string[11] memory secondWords = [
+                "Token",
+                "Rollup",
+                "Nexus",
+                "Blockchain",
+                "Protocol",
+                "Node",
+                "Oasis",
+                "Sphere",
+                "Quantum",
+                "Nucleus",
+                "Link"
+            ];
+            string[7] memory thirdWords = [
+                "Chain",
+                "Network",
+                "EVM",
+                "Ledger",
+                "Commons",
+                "Blockchain",
+                "DAO"
+            ];
             uint256 num1 = (ownerSeed % 9879) % firstWords.length;
             uint256 num2 = (ownerSeed % 3214) % secondWords.length;
             uint256 num3 = (ownerSeed % 2047) % thirdWords.length;

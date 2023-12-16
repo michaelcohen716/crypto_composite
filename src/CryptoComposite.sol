@@ -62,7 +62,7 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
         string[2] memory indices1 = ["000000", "36445f"];
         if (colorIndex == 1) return indices1[(seed % 8765) % indices1.length];
 
-        if (colorIndex == 2) return "2bafff";
+        if (colorIndex == 2) return "2bafff"; // hair
         if (colorIndex == 3) return "12dcfe";
         if (colorIndex == 4) return "1c74ee";
         if (colorIndex == 5) return "134fa3";
@@ -83,36 +83,39 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
         return "ffffff";
     }
 
-    function getSvg(uint256 tokenId) public view returns (string memory svg) {}
-
-    function generateHTML(uint256 seed) public view returns (string memory) {
+    function getSvg(uint256 seed) public view returns (string memory svg) {
         uint16[576] memory grid = generateGrid(seed);
-        string
-            memory html = '<div style="font-size:0; width:288px; height:288px;"><style>span{display:inline-block;width:12px;height:12px;}</style>';
+        string memory header = '<svg style="background-color:#ffffff" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">';
+        string memory defs = '<defs></defs>';
+        string memory style = '<style type="text/css"></style>';
+        string memory rects = '';
+
         for (uint256 i = 0; i < 576; i++) {
-            html = string(
-                abi.encodePacked(
-                    html,
-                    '<span style="background-color:#',
-                    getColor(seed, grid[i]),
-                    ';"></span>'
-                )
-            );
+            uint256 x = (i % 24) * 12;
+            uint256 y = (i / 24) * 12;
+            rects = string(abi.encodePacked(
+                rects,
+                '<rect x="', uintToString(x), '" y="', uintToString(y),
+                '" width="12" height="12" fill="#', getColor(seed, grid[i]), '" />'
+            ));
         }
-        html = string(abi.encodePacked(html, "</div>"));
-        return html;
+
+        return string(abi.encodePacked(
+            header,
+            rects,
+            '</svg>'
+        ));
     }
 
     function generateGrid(
         uint256 seed
     ) public pure returns (uint16[576] memory grid) {
         grid = getFaceOutline(0, grid);
+        grid = getEars(0, grid);
         grid = getHair(0, seed, grid);
         grid = getNose(0, grid);
         grid = getEyes(seed, grid);
-        grid = getEars(0, grid);
         grid = getMouth(0, grid);
-
         grid = getSkin(grid);
     }
 
@@ -128,6 +131,8 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
                 }
             }
         }
+        // custom
+        grid[486] = 0;
         return grid;
     }
 
@@ -136,7 +141,8 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
         uint256 seed,
         uint16[576] memory grid
     ) public pure returns (uint16[576] memory) {
-        uint256 version = (seed % 3498) % 2;
+        uint256 version = 3;
+        // uint256 version = (seed % 3498) % 3;
 
         uint8[54] memory hair0 = [
             58,
@@ -279,6 +285,61 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
             234
         ];
 
+        uint16[41] memory hair2Outline = [
+            // bottom left corner going up
+            506, 482, 458, 434, 410, 386, 362, 338, 314, 290, 266, 242, 218, 194, 170,
+            // top left corner going up,right and across
+            147, 123, 124, 125, 100, 101, 102, 103, 77, 78, 79, 80, 81, 81, 82, 83, 58,
+            // bottom left corner going right 
+            507, 508, 509,
+            // bottom right going up
+            485, 461, 437, 413, 389, 365
+        ];
+
+        uint16[86] memory hair2Inner = [
+            // filling from bottom up
+            483, 484, 459, 460, 435, 436, 411, 412, 387, 388,
+            363, 364, 339, 340, 315, 316, 291, 292, 267, 268,
+            243, 244, 219, 220, 195, 196, 171, 172, 148,
+            // starting middle left of forehead going across
+            124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136,
+            149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161,
+            173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185,
+            // filling in brow
+            197, 200, 201, 202, 204, 205, 206, 207, 209,
+            // filling in top
+            104, 105, 106, 107, 108, 109, 110, 111, 112
+            // 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112
+        ];
+
+        uint8[1] memory hair2Cleanup = [34];
+
+        uint16[60] memory hair3Outline = [
+            // bottom left corner going up
+            364, 363, 339, 315, 314, 290, 266, 242, 218, 194,
+            193, 169, 145, 146, 122, 123, 98, 99, 74, 75,
+            51, 52, 53, 28, 29, 30, 31, 32, 33, 8,
+            9, 10, 11, 35, 36, 37, 38, 39, 63, 64, 
+            65, 89, 90, 91, 115, 116, 140, 141, 165, 166, 
+            189, 213, 237, 261, 285, 284, 308, 332, 331, 330
+        ];
+
+        uint16[118] memory hair3Inner = [
+            // starting top left by row
+            54, 55, 56, 57, 58, 59, 60, 61, 62, 76,
+            77, 78, 79, 80, 81, 82, 83, 84, 85, 86,
+            87, 88, 100, 101, 102, 103, 104, 105, 106, 107,
+            108, 109, 110, 111, 112, 113, 114, 123, 124, 125, 
+            126, 127, 128, 129, 130, 131, 132, 133, 134, 135,
+            136, 137, 138, 139, 147, 148, 149, 150, 151, 152,
+            153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
+            163, 164, 170, 171, 172, 173, 174, 175, 176, 177,
+            178, 179, 180, 181, 182, 183, 184, 185, 186, 187,
+            188, 195, 196, 200, 201, 202, 204, 205, 206, 207, 
+            209, 210, 211, 212, 219, 220, 235, 236, 243, 244,
+            259, 260, 267, 268, 283, 291, 292, 316
+        ];
+
         if (faceVersion == 0) {
             if (version == 0 || version == 1) {
                 for (uint i = 0; i < hair0.length; i++) {
@@ -295,6 +356,33 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
             if (version == 1) {
                 for (uint i = 0; i < hair1.length; i++) {
                     grid[hair1[i]] = 2;
+                }
+            }
+
+            if(version == 2){
+                for(uint i = 0; i < hair2Outline.length; i++){
+                    grid[hair2Outline[i]] = 1;
+                }
+                for(uint i = 0; i < hair2Inner.length; i++){
+                    grid[hair2Inner[i]] = 2;
+                }
+                for(uint i = 0; i < hair2Cleanup.length; i++){
+                    grid[hair2Cleanup[i]] = 0;
+                }
+            }
+
+            if(version == 3){
+                for(uint i = 0; i < hair3Outline.length; i++){
+                    grid[hair3Outline[i]] = 1;
+                }
+                for(uint i = 0; i < hair3Inner.length; i++){
+                    uint8 rand = uint8(uint256(keccak256(abi.encodePacked(seed, i)))) % 100;
+                    uint16 index = hair3Inner[i];
+                    if(index < 128 || (index > 132 && index < 138)){
+                        grid[hair3Inner[i]] = 3;
+                    } else {
+                        grid[hair3Inner[i]] = 2;
+                    }   
                 }
             }
         }
@@ -520,6 +608,26 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
             color[i] = hexChars[uint8(seed >> (i * 4)) & 0xf];
         }
         return string(color);
+    }
+
+    function uintToString(uint256 _i) internal pure returns (string memory str) {
+        if (_i == 0) {
+            return "0";
+        }
+        uint256 j = _i;
+        uint256 length;
+        while (j != 0) {
+            length++;
+            j /= 10;
+        }
+        bytes memory bstr = new bytes(length);
+        uint256 k = length;
+        j = _i;
+        while (j != 0) {
+            bstr[--k] = bytes1(uint8(48 + j % 10));
+            j /= 10;
+        }
+        str = string(bstr);
     }
 }
 

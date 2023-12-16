@@ -17,15 +17,17 @@ contract CryptoCompositeScript is Script {
 
         uint256 seed = uint(
             keccak256(
-                abi.encodePacked(block.timestamp, block.prevrandao, "23238231")
+                abi.encodePacked(block.timestamp, block.prevrandao, "1119992")
             )
         );
-        string memory name = attr.getProjectName(seed);
-        string memory role = attr.getProjectRole(seed);
-        console2.log("role", role);
-        console2.log("project", name);
+        // string memory sector = attr.getSector(seed);
+        // string memory name = attr.getProjectName(seed);
+        // string memory role = attr.getProjectRole(seed);
+        // console2.log("sector", sector);
+        // console2.log("role", role);
+        // console2.log("project", name);
 
-        string memory svg = cc.generateHTML(seed);
-        // console2.logString(svg);
+        string memory svg = cc.getSvg(seed);
+        console2.logString(svg);
     }
 }
