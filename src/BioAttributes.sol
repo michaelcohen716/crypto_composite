@@ -61,9 +61,9 @@ contract BioAttributes {
         if (sectorNum == 0) {
             string[8] memory roles = [
                 "Founder",
-                "Backend Dev",
-                "Frontend Dev",
-                "Fullstack Dev",
+                "Backend Developer",
+                "Frontend Developer",
+                "Fullstack Developer",
                 "Community Manager",
                 "Growth Lead",
                 "Partnerships",
@@ -74,7 +74,7 @@ contract BioAttributes {
         } else if (sectorNum == 1) {
             string[8] memory roles = [
                 "Founder",
-                "Dev",
+                "Developer",
                 "Creator",
                 "Curator",
                 "Investor",
@@ -114,7 +114,7 @@ contract BioAttributes {
             // sectorNum 4
             string[9] memory roles = [
                 "Cofounder",
-                "Infra Dev",
+                "Infra Developer",
                 "DeFi Lead",
                 "NFT Lead",
                 "Community Manager",

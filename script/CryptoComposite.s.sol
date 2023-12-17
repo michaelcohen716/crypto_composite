@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {Script, console2} from "forge-std/Script.sol";
 import "../src/CryptoComposite.sol";
 import "../src/BioAttributes.sol";
+import "../src/SvgRender.sol";
 
 contract CryptoCompositeScript is Script {
     uint256 tokenId = 1;
@@ -12,12 +13,13 @@ contract CryptoCompositeScript is Script {
 
     function run() public {
         vm.startBroadcast();
+        SvgRender svg = new SvgRender();
         BioAttributes attr = new BioAttributes();
-        CryptoComposite cc = new CryptoComposite(attr);
+        CryptoComposite cc = new CryptoComposite(attr, svg);
 
         uint256 seed = uint(
             keccak256(
-                abi.encodePacked(block.timestamp, block.prevrandao, "1119992")
+                abi.encodePacked(block.timestamp, block.prevrandao, "aa31ssaadr32")
             )
         );
         // string memory sector = attr.getSector(seed);
@@ -27,7 +29,7 @@ contract CryptoCompositeScript is Script {
         // console2.log("role", role);
         // console2.log("project", name);
 
-        string memory svg = cc.getSvg(seed);
-        console2.logString(svg);
+        string memory svgStr = svg.getSvg(seed);
+        console2.logString(svgStr);
     }
 }
