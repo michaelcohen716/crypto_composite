@@ -3,7 +3,6 @@ pragma solidity ^0.8.13;
 
 interface IBioAttributes {
     function getAttributes(
-        address owner,
         uint256 bioSeed
     ) external view returns (string memory);
 }
@@ -12,18 +11,16 @@ contract BioAttributes {
     string[5] sectors = ["DeFi", "NFTs", "Investing", "Media", "L1/L2"];
 
     function getAttributes(
-        address owner,
         uint256 bioSeed
     ) public view returns (string memory) {
-        uint256 ownerSeed = uint256(uint160(owner)); // todo: mint seed
-        string memory sector = getSector(ownerSeed);
+        string memory sector = getSector(bioSeed);
         return
             string(
                 abi.encodePacked(
                     '"attributes": [{"trait_type": "project", "value": "',
-                    "project xyz", // todo: replace
+                    getProjectName(bioSeed),
                     '"}, {"trait_type": "role", "value": "',
-                    "frontend dev", // todo: replace
+                    getProjectRole(bioSeed),
                     '"}, {"trait_type": "vibe", "value": "',
                     "chaotic neutral", // todo: replace
                     '"}, {"trait_type": "sector", "value": "',

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
+import {Script, console2} from "forge-std/Script.sol";
 
 interface ISvgRender {
     function getSvg(uint256 pfpSeed) external view returns(string memory);
@@ -35,7 +36,7 @@ contract SvgRender {
         string[7] memory indices5 = ["9b59b6", "e74c3c", "f1c40f", "5dade2", "a6acaf", "ba4a00", "7f8c8d"];
         if (colorIndex == 5) return indices5[(seed % 5593) % indices5.length];
 
-        // background/skin
+        // skin
         string[5] memory indices6 = [
             "e6ebe6",
             "8d5524",
@@ -76,11 +77,11 @@ contract SvgRender {
         uint256 seed
     ) public pure returns (uint16[576] memory grid) {
         grid = getFaceOutline(grid);
-        grid = getEars(0, grid);
+        grid = getEars(seed, grid);
         grid = getHair(seed, grid);
-        grid = getNose(0, grid);
+        grid = getNose(seed, grid);
         grid = getEyes(seed, grid);
-        grid = getMouth(0, grid);
+        grid = getMouth(seed, grid);
         grid = getSkin(grid);
     }
 
@@ -180,12 +181,11 @@ contract SvgRender {
     }
 
     function getHair(
-        // uint256 faceVersion,
         uint256 seed,
         uint16[576] memory grid
     ) public pure returns (uint16[576] memory) {
-        uint256 version = 1;
-        // uint256 version = (seed % 3498) % 4;
+        uint256 version = (seed % 3498) % 5;
+        console2.log('version', version);
 
         uint8[54] memory hair0 = [
             58,
@@ -328,7 +328,7 @@ contract SvgRender {
             234
         ];
 
-        uint16[41] memory hair2Outline = [
+        uint16[44] memory hair2Outline = [
             // bottom left corner going up
             506, 482, 458, 434, 410, 386, 362, 338, 314, 290, 266, 242, 218, 194, 170,
             // top left corner going up,right and across
@@ -336,7 +336,7 @@ contract SvgRender {
             // bottom left corner going right 
             507, 508, 509,
             // bottom right going up
-            485, 461, 437, 413, 389, 365
+            485, 461, 437, 413, 389, 365, 341, 317, 293
         ];
 
         uint16[86] memory hair2Inner = [
@@ -383,6 +383,34 @@ contract SvgRender {
             259, 260, 267, 268, 283, 291, 292, 316
         ];
 
+        uint16[58] memory hair4Outline = [
+            // starting from bottom right face
+            475, 499, 523, 547, 571, // 5
+            // bottom right rightward then up
+            572, 573, 549, 525, 501, 477, 453, 429, 405, 381,
+            357, 333, 309, 285, 261, 237, 213, 189, 188, 164,
+            163, 139, 138, 114, 113, 89, 64, 63, 39, 38, 
+            37, 36, 35, 34, 33, 32, 56, 55, 54, 53,
+            77, 101, 100, 124, 148, 147, 171, 195, 219, 243,
+            267, 306, 330 //last 2 are ear cover
+        ];
+
+        uint16[107] memory hair4Inner = [
+            548, 524, 500, 476, 452, 451, 427, 428, 404, 403,
+            379, 380, 356, 355, 331, 332, 308, 307, 283, 284,
+            260, 259, 235, 236, 209, 210, 211, 212, 187, 186,
+            185, 162, 161, 184, 183, 182, 181, 180, 179, 178,
+            177, 176, 175, 174, 173, 172, 196, 220, 244, 200,
+            201, 202, 204, 205, 206, 207, 160, 151, 150, 149,
+            125, 126,
+            // 
+                     152, 153, 154, 155, 156, 157, 158, 159,
+            127, 128, 129, 130, 131, 132, 133, 134, 135, 136,        
+            137, 102, 103, 104, 105, 106, 107, 108, 109, 110,
+            111, 112, 78, 79, 80, 81, 82, 83, 84, 85,
+            86, 87, 58, 59, 60, 61, 62
+        ];
+
             if (version == 0 || version == 1) {
                 for (uint i = 0; i < hair0.length; i++) {
                     uint8 rand = uint8(
@@ -400,7 +428,6 @@ contract SvgRender {
                     grid[hair1[i]] = 2;
                 }
             }
-
             if(version == 2){
                 for(uint i = 0; i < hair2Outline.length; i++){
                     grid[hair2Outline[i]] = 1;
@@ -412,19 +439,29 @@ contract SvgRender {
                     grid[hair2Cleanup[i]] = 0;
                 }
             }
-
             if(version == 3){
                 for(uint i = 0; i < hair3Outline.length; i++){
                     grid[hair3Outline[i]] = 1;
                 }
                 for(uint i = 0; i < hair3Inner.length; i++){
-                    uint8 rand = uint8(uint256(keccak256(abi.encodePacked(seed, i)))) % 100;
                     uint16 index = hair3Inner[i];
                     if(index < 128 || (index > 132 && index < 138)){
                         grid[hair3Inner[i]] = 3;
                     } else {
                         grid[hair3Inner[i]] = 2;
                     }   
+                }
+            }
+            if(version == 4){
+                for(uint i = 0; i < hair4Outline.length; i++){
+                    grid[hair4Outline[i]] = 1;
+                }
+                for(uint i = 0; i < hair4Inner.length; i++){
+                    if(i > 61){
+                        grid[hair4Inner[i]] = 3;
+                    } else {
+                        grid[hair4Inner[i]] = 2;
+                    }
                 }
             }
         return grid;
@@ -434,13 +471,15 @@ contract SvgRender {
         uint256 seed,
         uint16[576] memory grid
     ) public pure returns (uint16[576] memory) {
-        uint256 version = (seed % 4334) % 2;
+        uint256 version = (seed % 4339) % 6;
 
         uint16[6] memory nose0 = [347, 348, 349, 371, 373, 396];
         uint16[4] memory nose1 = [347, 348, 349, 372];
+        uint16[3] memory nose2 = [347, 348, 349];
+        uint16[3] memory nose3 = [371, 372, 373];
+        uint16[5] memory nose4 = [371, 372, 373, 348, 396];
+        // nose5 == no nose
 
-        // note: right now, this could be done with same
-        // for loop, but keeping it separate for optionality
         if (version == 0) {
             for (uint i = 0; i < nose0.length; i++) {
                 grid[nose0[i]] = 1;
@@ -449,6 +488,20 @@ contract SvgRender {
             for (uint i = 0; i < nose1.length; i++) {
                 grid[nose1[i]] = 1;
             }
+        } else if(version == 2){
+            for (uint i = 0; i < nose2.length; i++) {
+                grid[nose2[i]] = 1;
+            }
+        } else if(version == 3){
+            for (uint i = 0; i < nose3.length; i++) {
+                grid[nose3[i]] = 1;
+            }
+        } else if(version == 4){
+            for (uint i = 0; i < nose4.length; i++) {
+                grid[nose4[i]] = 1;
+            }
+        } else {
+            // no nose
         }
 
         return grid;
@@ -503,10 +556,14 @@ contract SvgRender {
         uint256 seed,
         uint16[576] memory grid
     ) public pure returns (uint16[576] memory) {
-        uint256 version = (seed % 6765) % 2;
+        uint256 version = (seed % 6765) % 6;
 
         uint16[7] memory mouth0 = [400, 423, 446, 467, 468, 469, 470];
         uint16[8] memory mouth1 = [442, 446, 467, 468, 469, 443, 444, 445];
+        // mouth2 same cells as mouth1
+        uint16[3] memory mouth3 = [443, 444, 445];
+        uint16[3] memory mouth4 = [467, 468, 469];
+        uint16[7] memory mouth5 = [442, 466, 467, 468, 469, 470, 446];
 
         if (version == 0) {
             for (uint i = 0; i < mouth0.length; i++) {
@@ -519,6 +576,26 @@ contract SvgRender {
                 } else {
                     grid[mouth1[i]] = 2;
                 }
+            }
+        } else if(version == 2){
+            for(uint i = 0; i < mouth1.length;i++){
+                if(mouth1[i] == 468){
+                    grid[mouth1[i]] = 3;
+                } else {
+                    grid[mouth1[i]] = 1;
+                }
+            }
+        } else if(version == 3){
+            for(uint i = 0; i < mouth3.length;i++){
+                grid[mouth3[i]] = 1;
+            }
+        }else if(version == 4){
+            for(uint i = 0; i < mouth4.length;i++){
+                grid[mouth4[i]] = 1;
+            }
+        }else if(version == 5){
+            for(uint i = 0; i < mouth5.length;i++){
+                grid[mouth5[i]] = 1;
             }
         }
         return grid;

@@ -2,8 +2,8 @@
 pragma solidity ^0.8.13;
 
 import {Script, console2} from "forge-std/Script.sol";
-import "solmate/src/tokens/ERC721.sol"; // todo: replace with OZ
 import "openzeppelin-contracts/contracts/utils/Strings.sol";
+import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "./BioAttributes.sol";
 import "./SvgRender.sol";
 
@@ -16,6 +16,12 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
 
     BioAttributes attributes;
     SvgRender svgRender;
+
+    event Mint(
+        address indexed minter,
+        uint256 bioSeed,
+        uint256 pfpSeed
+    );
     
     constructor(BioAttributes _attributes, SvgRender _svgRender){
         attributes = _attributes;
@@ -23,12 +29,20 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
     }
 
     function mint(uint256 bioSeed, uint256 pfpSeed) public returns(uint256){
-        // todo: mint constraints
-        _safeMint(msg.sender, totalSupply);
-        idToAddress[totalSupply] = msg.sender;
-        addressToBioSeed[msg.sender] = bioSeed;
-        addressToPfpSeed[msg.sender] = pfpSeed;
-        totalSupply++; // todo: replace with OZ
+        address minter = msg.sender;
+        // require(addressToBioSeed[minter] == 0, "Address has already minted"); // disabled during testing
+        require(bioSeed != 0);
+        require(pfpSeed != 0);
+
+        _safeMint(minter, totalSupply);
+        idToAddress[totalSupply] = minter;
+
+        addressToBioSeed[minter] = bioSeed;
+        addressToPfpSeed[minter] = pfpSeed;
+
+        totalSupply++;
+
+        emit Mint(minter, bioSeed, pfpSeed);
     }
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         address owner = idToAddress[tokenId];
@@ -44,7 +58,7 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
                         '" "description": "...", "image_data": "',
                         svg,
                         '", ',
-                        getAttributes(owner, bioSeed),
+                        getAttributes(bioSeed),
                         "}"
                     )
                 )
@@ -53,8 +67,21 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
         return string(abi.encodePacked("data:application/json;base64,", json));
     }
 
-    function getAttributes(address owner, uint256 bioSeed) public view returns(string memory){
+    function getUnmintedSeed(address nonMinter) public view returns(uint256 bioSeed, uint256 pfpSeed){
+        bioSeed = uint(
+            keccak256(
+                abi.encodePacked(nonMinter, "bioSeed")
+            )
+        );     
+        pfpSeed = uint(
+            keccak256(
+                abi.encodePacked(nonMinter, "pfpSeed")
+            )
+        );
+    }
 
+    function getAttributes(uint256 bioSeed) public view returns(string memory){
+        return attributes.getAttributes(bioSeed);
     }
    
     function toString(uint256 value) internal pure returns (string memory) {

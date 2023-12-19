@@ -17,11 +17,15 @@ contract CryptoCompositeScript is Script {
         BioAttributes attr = new BioAttributes();
         CryptoComposite cc = new CryptoComposite(attr, svg);
 
-        uint256 seed = uint(
-            keccak256(
-                abi.encodePacked(block.timestamp, block.prevrandao, "aa31ssaadr32")
-            )
-        );
+        console2.log(address(svg));
+        console2.log(address(attr));
+        console2.log(address(cc));
+
+        // uint256 seed = uint(
+        //     keccak256(
+        //         abi.encodePacked(block.timestamp, block.prevrandao, "ada33eds")
+        //     )
+        // );
         // string memory sector = attr.getSector(seed);
         // string memory name = attr.getProjectName(seed);
         // string memory role = attr.getProjectRole(seed);
@@ -29,7 +33,7 @@ contract CryptoCompositeScript is Script {
         // console2.log("role", role);
         // console2.log("project", name);
 
-        string memory svgStr = svg.getSvg(seed);
-        console2.logString(svgStr);
+        // string memory svgStr = svg.getSvg(seed);
+        // console2.logString(svgStr);
     }
 }
