@@ -13,6 +13,7 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
     mapping(address => uint256) addressToBioSeed;
     mapping(address => uint256) addressToPfpSeed;
     mapping(uint256 => address) idToAddress;
+    mapping(address => address[10]) addressToCrew;
 
     BioAttributes attributes;
     SvgRender svgRender;
@@ -21,6 +22,17 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
         address indexed minter,
         uint256 bioSeed,
         uint256 pfpSeed
+    );
+
+    event UpdateProfile(
+        address indexed minter,
+        uint256 bioSeed,
+        uint256 pfpSeed
+    );
+
+    event UpdateCrew(
+        address indexed minter,
+        address[10] newCrew
     );
     
     constructor(BioAttributes _attributes, SvgRender _svgRender){
@@ -44,6 +56,28 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
 
         emit Mint(minter, bioSeed, pfpSeed);
     }
+
+
+    function updateProfile(uint256 bioSeed, uint256 pfpSeed) public {
+        address minter = msg.sender;
+        require(addressToBioSeed[minter] > 0, "Address has not minted");
+        addressToBioSeed[minter] = bioSeed;
+        addressToPfpSeed[minter] = pfpSeed;
+
+        emit UpdateProfile(minter, bioSeed, pfpSeed);
+    }
+
+    function updateCrew(address[10] memory crew) public {
+        address minter = msg.sender;
+        require(addressToBioSeed[minter] > 0, "Address has not minted");
+        addressToCrew[minter] = crew;
+
+        emit UpdateCrew(minter, crew);
+    }
+
+    // todo: make non-transferable
+
+
     function tokenURI(uint256 tokenId) public view override returns (string memory) {
         address owner = idToAddress[tokenId];
         uint256 bioSeed = addressToBioSeed[owner];
@@ -58,13 +92,17 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
                         '" "description": "...", "image_data": "',
                         svg,
                         '", ',
-                        getAttributes(bioSeed),
+                        getAttributes(bioSeed, owner),
                         "}"
                     )
                 )
             )
         );
         return string(abi.encodePacked("data:application/json;base64,", json));
+    }
+
+    function getCrew(address minter) public view returns(address[10] memory) {
+        return addressToCrew[minter];
     }
 
     function getUnmintedSeed(address nonMinter) public view returns(uint256 bioSeed, uint256 pfpSeed){
@@ -80,8 +118,24 @@ contract CryptoComposite is ERC721("CryptoComposite", "CTCPS") {
         );
     }
 
-    function getAttributes(uint256 bioSeed) public view returns(string memory){
-        return attributes.getAttributes(bioSeed);
+    function getAttributes(uint256 bioSeed, address owner) public view returns(string memory){
+        return attributes.getAttributes(bioSeed, owner);
+    }
+
+    function getSeeds(address _address) public view returns(uint256 bioSeed, uint256 pfpSeed, bool minted){
+        if(addressToBioSeed[_address] == 0){
+            (bioSeed, pfpSeed) = getUnmintedSeed(_address);
+        } else {
+            minted = true;
+            (bioSeed, pfpSeed) = getMintedSeed(_address);
+        }
+    }
+
+    function getMintedSeed(address minter) public view returns(uint256 bioSeed, uint256 pfpSeed){
+        return (
+            addressToBioSeed[minter],
+            addressToPfpSeed[minter]
+        );
     }
    
     function toString(uint256 value) internal pure returns (string memory) {

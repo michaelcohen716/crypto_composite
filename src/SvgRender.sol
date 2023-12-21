@@ -3,10 +3,14 @@ pragma solidity ^0.8.13;
 import {Script, console2} from "forge-std/Script.sol";
 
 interface ISvgRender {
-    function getSvg(uint256 pfpSeed) external view returns(string memory);
+    function getSvg(
+        uint256 pfpSeed
+    ) external view returns (string memory);
 }
 
 contract SvgRender {
+    uint16[9] ratingCells = [525, 526, 527, 549, 550, 551, 573, 574, 575];
+
     function getColor(
         uint256 seed,
         uint256 colorIndex
@@ -18,22 +22,54 @@ contract SvgRender {
 
         // hair1, eye1
         // [purple, light brown, orange, blonde, red, grey, yellow]
-        string[7] memory indices2 = ["8e44ad", "a67f59", "e67e22", "f0e2be", "9f1d35", "d0d0d0", "f1c40f"];
+        string[7] memory indices2 = [
+            "8e44ad",
+            "a67f59",
+            "e67e22",
+            "f0e2be",
+            "9f1d35",
+            "d0d0d0",
+            "f1c40f"
+        ];
         if (colorIndex == 2) return indices2[(seed % 8443) % indices2.length];
 
         // hair2 (complements), eye2
         // [greenish, blueish, blue, dark blue, teal, dark grey, blue]
-        string[7] memory indices3 = ["71bb52", "5980a6", "1981dd", "0f1d41", "60e2ca", "2f2f2f", "0e3bf0"];
+        string[7] memory indices3 = [
+            "71bb52",
+            "5980a6",
+            "1981dd",
+            "0f1d41",
+            "60e2ca",
+            "2f2f2f",
+            "0e3bf0"
+        ];
         if (colorIndex == 3) return indices3[(seed % 8443) % indices3.length];
 
         // eye3
         // [taupe, plum, sky blue, sunflower, mint, rose, coral]
-        string[7] memory indices4 = ["c7a17a", "6b2d5c", "8fbcd4", "e3ac3d", "a1dbb2", "f7c6c7", "ff6f61"];
+        string[7] memory indices4 = [
+            "c7a17a",
+            "6b2d5c",
+            "8fbcd4",
+            "e3ac3d",
+            "a1dbb2",
+            "f7c6c7",
+            "ff6f61"
+        ];
         if (colorIndex == 4) return indices4[(seed % 8443) % indices4.length];
 
         // ears, eye4
         // [amethyst, sunset, golden rod, skyline, mist, copper, slate]
-        string[7] memory indices5 = ["9b59b6", "e74c3c", "f1c40f", "5dade2", "a6acaf", "ba4a00", "7f8c8d"];
+        string[7] memory indices5 = [
+            "9b59b6",
+            "e74c3c",
+            "f1c40f",
+            "5dade2",
+            "a6acaf",
+            "ba4a00",
+            "7f8c8d"
+        ];
         if (colorIndex == 5) return indices5[(seed % 5593) % indices5.length];
 
         // skin
@@ -49,28 +85,37 @@ contract SvgRender {
         return "ffffff";
     }
 
-    function getSvg(uint256 seed) public pure returns (string memory svg) {
+    function getSvg(
+        uint256 seed
+    ) public pure returns (string memory svg) {
         uint16[576] memory grid = generateGrid(seed);
-        string memory header = '<svg style="background-color:#ffffff" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">';
-        string memory defs = '<defs></defs>';
-        string memory style = '<style type="text/css"></style>';
-        string memory rects = '';
+        string
+            memory header = '<svg style="background-color:#ffffff" viewBox="0 0 288 288" xmlns="http://www.w3.org/2000/svg">';
+
+        // todo: use?
+        string
+            memory defs = '<defs><filter id="light-box-shadow" x="-10%" y="-10%" width="120%" height="120%"><feOffset result="offOut" in="SourceAlpha" dx="3" dy="3" /><feGaussianBlur result="blurOut" in="offOut" stdDeviation="5" /><feBlend in="SourceGraphic" in2="blurOut" mode="normal" /> </filter></defs>';
+        string memory rects = "";
 
         for (uint256 i = 0; i < 576; i++) {
             uint256 x = (i % 24) * 12;
             uint256 y = (i / 24) * 12;
-            rects = string(abi.encodePacked(
-                rects,
-                '<rect x="', uintToString(x), '" y="', uintToString(y),
-                '" width="12" height="12" fill="#', getColor(seed, grid[i]), '" />'
-            ));
+
+            rects = string(
+                abi.encodePacked(
+                    rects,
+                    '<rect x="',
+                    uintToString(x),
+                    '" y="',
+                    uintToString(y),
+                    '" width="12" height="12" fill="#',
+                    getColor(seed, grid[i]),
+                    '" />'
+                )
+            );
         }
 
-        return string(abi.encodePacked(
-            header,
-            rects,
-            '</svg>'
-        ));
+        return string(abi.encodePacked(header, defs, rects, "</svg>"));
     }
 
     function generateGrid(
@@ -185,7 +230,6 @@ contract SvgRender {
         uint16[576] memory grid
     ) public pure returns (uint16[576] memory) {
         uint256 version = (seed % 3498) % 5;
-        console2.log('version', version);
 
         uint8[54] memory hair0 = [
             58,
@@ -309,7 +353,7 @@ contract SvgRender {
             137,
             138,
             139,
-            // 
+            //
             148,
             149,
             162,
@@ -317,12 +361,12 @@ contract SvgRender {
             //
             173,
             186,
-            // 
+            //
             196,
             197,
             210,
             211,
-            // 
+            //
             219,
             220,
             234
@@ -330,28 +374,146 @@ contract SvgRender {
 
         uint16[44] memory hair2Outline = [
             // bottom left corner going up
-            506, 482, 458, 434, 410, 386, 362, 338, 314, 290, 266, 242, 218, 194, 170,
+            506,
+            482,
+            458,
+            434,
+            410,
+            386,
+            362,
+            338,
+            314,
+            290,
+            266,
+            242,
+            218,
+            194,
+            170,
             // top left corner going up,right and across
-            147, 123, 124, 125, 100, 101, 102, 103, 77, 78, 79, 80, 81, 81, 82, 83, 58,
-            // bottom left corner going right 
-            507, 508, 509,
+            147,
+            123,
+            124,
+            125,
+            100,
+            101,
+            102,
+            103,
+            77,
+            78,
+            79,
+            80,
+            81,
+            81,
+            82,
+            83,
+            58,
+            // bottom left corner going right
+            507,
+            508,
+            509,
             // bottom right going up
-            485, 461, 437, 413, 389, 365, 341, 317, 293
+            485,
+            461,
+            437,
+            413,
+            389,
+            365,
+            341,
+            317,
+            293
         ];
 
         uint16[86] memory hair2Inner = [
             // filling from bottom up
-            483, 484, 459, 460, 435, 436, 411, 412, 387, 388,
-            363, 364, 339, 340, 315, 316, 291, 292, 267, 268,
-            243, 244, 219, 220, 195, 196, 171, 172, 148,
+            483,
+            484,
+            459,
+            460,
+            435,
+            436,
+            411,
+            412,
+            387,
+            388,
+            363,
+            364,
+            339,
+            340,
+            315,
+            316,
+            291,
+            292,
+            267,
+            268,
+            243,
+            244,
+            219,
+            220,
+            195,
+            196,
+            171,
+            172,
+            148,
             // starting middle left of forehead going across
-            124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136,
-            149, 150, 151, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161,
-            173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            149,
+            150,
+            151,
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            160,
+            161,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179,
+            180,
+            181,
+            182,
+            183,
+            184,
+            185,
             // filling in brow
-            197, 200, 201, 202, 204, 205, 206, 207, 209,
+            197,
+            200,
+            201,
+            202,
+            204,
+            205,
+            206,
+            207,
+            209,
             // filling in top
-            104, 105, 106, 107, 108, 109, 110, 111, 112
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112
             // 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112
         ];
 
@@ -359,111 +521,417 @@ contract SvgRender {
 
         uint16[60] memory hair3Outline = [
             // bottom left corner going up
-            364, 363, 339, 315, 314, 290, 266, 242, 218, 194,
-            193, 169, 145, 146, 122, 123, 98, 99, 74, 75,
-            51, 52, 53, 28, 29, 30, 31, 32, 33, 8,
-            9, 10, 11, 35, 36, 37, 38, 39, 63, 64, 
-            65, 89, 90, 91, 115, 116, 140, 141, 165, 166, 
-            189, 213, 237, 261, 285, 284, 308, 332, 331, 330
+            364,
+            363,
+            339,
+            315,
+            314,
+            290,
+            266,
+            242,
+            218,
+            194,
+            193,
+            169,
+            145,
+            146,
+            122,
+            123,
+            98,
+            99,
+            74,
+            75,
+            51,
+            52,
+            53,
+            28,
+            29,
+            30,
+            31,
+            32,
+            33,
+            8,
+            9,
+            10,
+            11,
+            35,
+            36,
+            37,
+            38,
+            39,
+            63,
+            64,
+            65,
+            89,
+            90,
+            91,
+            115,
+            116,
+            140,
+            141,
+            165,
+            166,
+            189,
+            213,
+            237,
+            261,
+            285,
+            284,
+            308,
+            332,
+            331,
+            330
         ];
 
         uint16[118] memory hair3Inner = [
             // starting top left by row
-            54, 55, 56, 57, 58, 59, 60, 61, 62, 76,
-            77, 78, 79, 80, 81, 82, 83, 84, 85, 86,
-            87, 88, 100, 101, 102, 103, 104, 105, 106, 107,
-            108, 109, 110, 111, 112, 113, 114, 123, 124, 125, 
-            126, 127, 128, 129, 130, 131, 132, 133, 134, 135,
-            136, 137, 138, 139, 147, 148, 149, 150, 151, 152,
-            153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
-            163, 164, 170, 171, 172, 173, 174, 175, 176, 177,
-            178, 179, 180, 181, 182, 183, 184, 185, 186, 187,
-            188, 195, 196, 200, 201, 202, 204, 205, 206, 207, 
-            209, 210, 211, 212, 219, 220, 235, 236, 243, 244,
-            259, 260, 267, 268, 283, 291, 292, 316
+            54,
+            55,
+            56,
+            57,
+            58,
+            59,
+            60,
+            61,
+            62,
+            76,
+            77,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            88,
+            100,
+            101,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            113,
+            114,
+            123,
+            124,
+            125,
+            126,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            138,
+            139,
+            147,
+            148,
+            149,
+            150,
+            151,
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            160,
+            161,
+            162,
+            163,
+            164,
+            170,
+            171,
+            172,
+            173,
+            174,
+            175,
+            176,
+            177,
+            178,
+            179,
+            180,
+            181,
+            182,
+            183,
+            184,
+            185,
+            186,
+            187,
+            188,
+            195,
+            196,
+            200,
+            201,
+            202,
+            204,
+            205,
+            206,
+            207,
+            209,
+            210,
+            211,
+            212,
+            219,
+            220,
+            235,
+            236,
+            243,
+            244,
+            259,
+            260,
+            267,
+            268,
+            283,
+            291,
+            292,
+            316
         ];
 
         uint16[58] memory hair4Outline = [
             // starting from bottom right face
-            475, 499, 523, 547, 571, // 5
+            475,
+            499,
+            523,
+            547,
+            571, // 5
             // bottom right rightward then up
-            572, 573, 549, 525, 501, 477, 453, 429, 405, 381,
-            357, 333, 309, 285, 261, 237, 213, 189, 188, 164,
-            163, 139, 138, 114, 113, 89, 64, 63, 39, 38, 
-            37, 36, 35, 34, 33, 32, 56, 55, 54, 53,
-            77, 101, 100, 124, 148, 147, 171, 195, 219, 243,
-            267, 306, 330 //last 2 are ear cover
+            572,
+            573,
+            549,
+            525,
+            501,
+            477,
+            453,
+            429,
+            405,
+            381,
+            357,
+            333,
+            309,
+            285,
+            261,
+            237,
+            213,
+            189,
+            188,
+            164,
+            163,
+            139,
+            138,
+            114,
+            113,
+            89,
+            64,
+            63,
+            39,
+            38,
+            37,
+            36,
+            35,
+            34,
+            33,
+            32,
+            56,
+            55,
+            54,
+            53,
+            77,
+            101,
+            100,
+            124,
+            148,
+            147,
+            171,
+            195,
+            219,
+            243,
+            267,
+            306,
+            330 //last 2 are ear cover
         ];
 
         uint16[107] memory hair4Inner = [
-            548, 524, 500, 476, 452, 451, 427, 428, 404, 403,
-            379, 380, 356, 355, 331, 332, 308, 307, 283, 284,
-            260, 259, 235, 236, 209, 210, 211, 212, 187, 186,
-            185, 162, 161, 184, 183, 182, 181, 180, 179, 178,
-            177, 176, 175, 174, 173, 172, 196, 220, 244, 200,
-            201, 202, 204, 205, 206, 207, 160, 151, 150, 149,
-            125, 126,
-            // 
-                     152, 153, 154, 155, 156, 157, 158, 159,
-            127, 128, 129, 130, 131, 132, 133, 134, 135, 136,        
-            137, 102, 103, 104, 105, 106, 107, 108, 109, 110,
-            111, 112, 78, 79, 80, 81, 82, 83, 84, 85,
-            86, 87, 58, 59, 60, 61, 62
+            548,
+            524,
+            500,
+            476,
+            452,
+            451,
+            427,
+            428,
+            404,
+            403,
+            379,
+            380,
+            356,
+            355,
+            331,
+            332,
+            308,
+            307,
+            283,
+            284,
+            260,
+            259,
+            235,
+            236,
+            209,
+            210,
+            211,
+            212,
+            187,
+            186,
+            185,
+            162,
+            161,
+            184,
+            183,
+            182,
+            181,
+            180,
+            179,
+            178,
+            177,
+            176,
+            175,
+            174,
+            173,
+            172,
+            196,
+            220,
+            244,
+            200,
+            201,
+            202,
+            204,
+            205,
+            206,
+            207,
+            160,
+            151,
+            150,
+            149,
+            125,
+            126,
+            //
+            152,
+            153,
+            154,
+            155,
+            156,
+            157,
+            158,
+            159,
+            127,
+            128,
+            129,
+            130,
+            131,
+            132,
+            133,
+            134,
+            135,
+            136,
+            137,
+            102,
+            103,
+            104,
+            105,
+            106,
+            107,
+            108,
+            109,
+            110,
+            111,
+            112,
+            78,
+            79,
+            80,
+            81,
+            82,
+            83,
+            84,
+            85,
+            86,
+            87,
+            58,
+            59,
+            60,
+            61,
+            62
         ];
 
-            if (version == 0 || version == 1) {
-                for (uint i = 0; i < hair0.length; i++) {
-                    uint8 rand = uint8(
-                        uint256(keccak256(abi.encodePacked(seed, i)))
-                    ) % 100;
-                    if (hair0[i] < 151) {
-                        grid[hair0[i]] = 2;
-                    } else {
-                        grid[hair0[i]] = (rand < 90) ? 3 : 2;
-                    }
+        if (version == 0 || version == 1) {
+            for (uint i = 0; i < hair0.length; i++) {
+                uint8 rand = uint8(
+                    uint256(keccak256(abi.encodePacked(seed, i)))
+                ) % 100;
+                if (hair0[i] < 151) {
+                    grid[hair0[i]] = 2;
+                } else {
+                    grid[hair0[i]] = (rand < 90) ? 3 : 2;
                 }
             }
-            if (version == 1) {
-                for (uint i = 0; i < hair1.length; i++) {
-                    grid[hair1[i]] = 2;
+        }
+        if (version == 1) {
+            for (uint i = 0; i < hair1.length; i++) {
+                grid[hair1[i]] = 2;
+            }
+        }
+        if (version == 2) {
+            for (uint i = 0; i < hair2Outline.length; i++) {
+                grid[hair2Outline[i]] = 1;
+            }
+            for (uint i = 0; i < hair2Inner.length; i++) {
+                grid[hair2Inner[i]] = 2;
+            }
+            for (uint i = 0; i < hair2Cleanup.length; i++) {
+                grid[hair2Cleanup[i]] = 0;
+            }
+        }
+        if (version == 3) {
+            for (uint i = 0; i < hair3Outline.length; i++) {
+                grid[hair3Outline[i]] = 1;
+            }
+            for (uint i = 0; i < hair3Inner.length; i++) {
+                uint16 index = hair3Inner[i];
+                if (index < 128 || (index > 132 && index < 138)) {
+                    grid[hair3Inner[i]] = 3;
+                } else {
+                    grid[hair3Inner[i]] = 2;
                 }
             }
-            if(version == 2){
-                for(uint i = 0; i < hair2Outline.length; i++){
-                    grid[hair2Outline[i]] = 1;
-                }
-                for(uint i = 0; i < hair2Inner.length; i++){
-                    grid[hair2Inner[i]] = 2;
-                }
-                for(uint i = 0; i < hair2Cleanup.length; i++){
-                    grid[hair2Cleanup[i]] = 0;
+        }
+        if (version == 4) {
+            for (uint i = 0; i < hair4Outline.length; i++) {
+                grid[hair4Outline[i]] = 1;
+            }
+            for (uint i = 0; i < hair4Inner.length; i++) {
+                if (i > 61) {
+                    grid[hair4Inner[i]] = 3;
+                } else {
+                    grid[hair4Inner[i]] = 2;
                 }
             }
-            if(version == 3){
-                for(uint i = 0; i < hair3Outline.length; i++){
-                    grid[hair3Outline[i]] = 1;
-                }
-                for(uint i = 0; i < hair3Inner.length; i++){
-                    uint16 index = hair3Inner[i];
-                    if(index < 128 || (index > 132 && index < 138)){
-                        grid[hair3Inner[i]] = 3;
-                    } else {
-                        grid[hair3Inner[i]] = 2;
-                    }   
-                }
-            }
-            if(version == 4){
-                for(uint i = 0; i < hair4Outline.length; i++){
-                    grid[hair4Outline[i]] = 1;
-                }
-                for(uint i = 0; i < hair4Inner.length; i++){
-                    if(i > 61){
-                        grid[hair4Inner[i]] = 3;
-                    } else {
-                        grid[hair4Inner[i]] = 2;
-                    }
-                }
-            }
+        }
         return grid;
     }
 
@@ -488,15 +956,15 @@ contract SvgRender {
             for (uint i = 0; i < nose1.length; i++) {
                 grid[nose1[i]] = 1;
             }
-        } else if(version == 2){
+        } else if (version == 2) {
             for (uint i = 0; i < nose2.length; i++) {
                 grid[nose2[i]] = 1;
             }
-        } else if(version == 3){
+        } else if (version == 3) {
             for (uint i = 0; i < nose3.length; i++) {
                 grid[nose3[i]] = 1;
             }
-        } else if(version == 4){
+        } else if (version == 4) {
             for (uint i = 0; i < nose4.length; i++) {
                 grid[nose4[i]] = 1;
             }
@@ -577,24 +1045,24 @@ contract SvgRender {
                     grid[mouth1[i]] = 2;
                 }
             }
-        } else if(version == 2){
-            for(uint i = 0; i < mouth1.length;i++){
-                if(mouth1[i] == 468){
+        } else if (version == 2) {
+            for (uint i = 0; i < mouth1.length; i++) {
+                if (mouth1[i] == 468) {
                     grid[mouth1[i]] = 3;
                 } else {
                     grid[mouth1[i]] = 1;
                 }
             }
-        } else if(version == 3){
-            for(uint i = 0; i < mouth3.length;i++){
+        } else if (version == 3) {
+            for (uint i = 0; i < mouth3.length; i++) {
                 grid[mouth3[i]] = 1;
             }
-        }else if(version == 4){
-            for(uint i = 0; i < mouth4.length;i++){
+        } else if (version == 4) {
+            for (uint i = 0; i < mouth4.length; i++) {
                 grid[mouth4[i]] = 1;
             }
-        }else if(version == 5){
-            for(uint i = 0; i < mouth5.length;i++){
+        } else if (version == 5) {
+            for (uint i = 0; i < mouth5.length; i++) {
                 grid[mouth5[i]] = 1;
             }
         }
@@ -637,7 +1105,9 @@ contract SvgRender {
         return string(buffer);
     }
 
-    function uintToString(uint256 _i) internal pure returns (string memory str) {
+    function uintToString(
+        uint256 _i
+    ) internal pure returns (string memory str) {
         if (_i == 0) {
             return "0";
         }
@@ -651,7 +1121,7 @@ contract SvgRender {
         uint256 k = length;
         j = _i;
         while (j != 0) {
-            bstr[--k] = bytes1(uint8(48 + j % 10));
+            bstr[--k] = bytes1(uint8(48 + (j % 10)));
             j /= 10;
         }
         str = string(bstr);

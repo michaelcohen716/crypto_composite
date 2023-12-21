@@ -3,7 +3,8 @@ pragma solidity ^0.8.13;
 
 interface IBioAttributes {
     function getAttributes(
-        uint256 bioSeed
+        uint256 bioSeed,
+        address owner
     ) external view returns (string memory);
 }
 
@@ -11,7 +12,8 @@ contract BioAttributes {
     string[5] sectors = ["DeFi", "NFTs", "Investing", "Media", "L1/L2"];
 
     function getAttributes(
-        uint256 bioSeed
+        uint256 bioSeed,
+        address owner
     ) public view returns (string memory) {
         string memory sector = getSector(bioSeed);
         return
@@ -22,12 +24,29 @@ contract BioAttributes {
                     '"}, {"trait_type": "role", "value": "',
                     getProjectRole(bioSeed),
                     '"}, {"trait_type": "vibe", "value": "',
-                    "chaotic neutral", // todo: replace
+                    getVibe(owner),
                     '"}, {"trait_type": "sector", "value": "',
                     sector,
                     '" }]'
                 )
             );
+    }
+
+    function getVibe(address owner) public pure returns (string memory) {
+        uint256 vibeDivisor = uint(keccak256(abi.encodePacked(owner, "vibe")));
+        uint256 vibe = vibeDivisor % 9;
+        string[9] memory vibes = [
+            "Lawful Good",
+            "Lawful Neutral",
+            "Lawful Evil",
+            "Neutral Good",
+            "True Neutral",
+            "Neutral Evil",
+            "Chaotic Good",
+            "Chaotic Neutral",
+            "Chaotic Evil"
+        ];
+        return vibes[vibe];
     }
 
     function getSector(uint256 ownerSeed) public view returns (string memory) {
@@ -139,14 +158,14 @@ contract BioAttributes {
                 "Synth",
                 "Impact",
                 "Linear",
-                "Uni",
+                "Sparkle",
                 "Pepe",
                 "Tribal",
                 "Magic",
                 "Insta",
                 "Quick",
                 "AI",
-                "Inverse"
+                "Bubblegum"
             ];
             string[14] memory secondWords = [
                 "Lend",
@@ -155,7 +174,7 @@ contract BioAttributes {
                 "Perp",
                 "Rocket",
                 "Dingo",
-                "Token",
+                "Cheese",
                 "Inu",
                 "Peepo",
                 "Money",
@@ -205,7 +224,7 @@ contract BioAttributes {
             string[10] memory secondWords = [
                 "Museum",
                 "Art House",
-                "Land",
+                "Wizard",
                 "Cats",
                 "Studio",
                 "Canvas",
@@ -301,13 +320,13 @@ contract BioAttributes {
                 "Distributed",
                 "Pioneer",
                 "Onchain",
-                "Tokenized",
+                "Unicorn",
                 "Digital"
             ];
             string[11] memory secondWords = [
                 "Blockchain",
-                "Asset",
-                "Vanguard",
+                "Pump",
+                "Dragon",
                 "Liquidity",
                 "Syndicate",
                 "Whale",
@@ -367,7 +386,7 @@ contract BioAttributes {
                 "Sphere",
                 "Quantum",
                 "Nucleus",
-                "Link"
+                "Consensus"
             ];
             string[7] memory thirdWords = [
                 "Chain",

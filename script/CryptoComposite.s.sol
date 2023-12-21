@@ -26,6 +26,7 @@ contract CryptoCompositeScript is Script {
         //         abi.encodePacked(block.timestamp, block.prevrandao, "ada33eds")
         //     )
         // );
+        // console2.log('script seed', seed);
         // string memory sector = attr.getSector(seed);
         // string memory name = attr.getProjectName(seed);
         // string memory role = attr.getProjectRole(seed);
